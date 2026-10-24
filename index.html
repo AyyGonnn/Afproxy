@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AFTERLIFE PROXY</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Cormorant+Garamond:ital,wght@0,300..700;1,300..700&family=Inter:wght@300..800&family=Space+Grotesk:wght@300..700&family=IBM+Plex+Sans:wght@300..700&family=Montserrat:wght@300..800&family=Oswald:wght@300..700&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #070102;
+    --panel: rgba(30, 5, 7, 0.6);
+    --line: rgba(196, 22, 28, 0.22);
+    --blood: #b0141c;
+    --blood-hot: #e0212b;
+    --text: #efe4e0;
+    --muted: #9c827d;
+    --on: #8ef0b4;
+    --font-head: "Fraunces", Georgia, serif;
+    --font-body: "Inter", system-ui, -apple-system, sans-serif;
+    color-scheme: dark;
+    box-sizing: border-box;
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background:
+      radial-gradient(ellipse 70% 50% at 50% -8%, rgba(176, 20, 28, 0.32), transparent 70%),
+      radial-gradient(ellipse 60% 45% at 50% 115%, rgba(92, 6, 9, 0.45), transparent 70%),
+      var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 14px;
+    line-height: 1.55;
+    overflow-x: hidden;
+    padding: env(safe-area-inset-top, 0px) 18px env(safe-area-inset-bottom, 0px);
+  }
+  body::after {
+    content: "";
+    position: fixed; inset: 0;
+    pointer-events: none;
+    opacity: 0.06;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+    z-index: 0;
+  }
+
+  .wrap { position: relative; z-index: 1; max-width: 880px; margin: 0 auto; padding: 56px 0 40px; }
+
+  /* Header */
+  .topbar { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+  .wordmark {
+    font-family: var(--font-head);
+    font-weight: 800;
+    font-size: clamp(1.9rem, 6vw, 2.8rem);
+    line-height: 1;
+    letter-spacing: -0.02em;
+    margin: 0;
+    text-shadow: 0 0 30px rgba(224, 33, 43, 0.3);
+  }
+  .wordmark .line { display: block; overflow: hidden; }
+  .wordmark .line > span { display: inline-block; animation: rise .9s cubic-bezier(.2,.7,.1,1) both; }
+  .wordmark .line + .line > span { color: var(--blood-hot); animation-delay: .12s; }
+  @keyframes rise { from { transform: translateY(105%); } to { transform: translateY(0); } }
+
+  .menu-btn {
+    display: none;
+    width: 42px; height: 42px;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    background: var(--panel);
+    color: var(--text);
+    cursor: pointer;
+    place-items: center;
+    flex-shrink: 0;
+    transition: transform .12s ease, border-color .2s ease;
+  }
+  .menu-btn.show { display: grid; }
+  .menu-btn:hover { border-color: var(--blood); }
+  .menu-btn:active { transform: scale(0.94); }
+  .menu-btn:focus-visible { outline: 1px solid var(--text); outline-offset: 3px; }
+  .menu-btn svg { width: 18px; height: 18px; stroke: currentColor; stroke-width: 1.8; fill: none; }
+
+  .tagline {
+    font-family: var(--font-head);
+    font-style: italic; font-weight: 300;
+    font-size: 0.95rem;
+    color: var(--muted);
+    margin: 10px 0 36px;
+    animation: fade .8s .3s both;
+  }
+  @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+
+  /* Cards */
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 18px 18px 16px;
+    backdrop-filter: blur(6px);
+    display: flex; flex-direction: column; gap: 14px;
+    transition: transform .2s ease, border-color .25s ease, box-shadow .3s ease;
+    animation: fade .8s both;
+  }
+  .card:nth-child(1) { animation-delay: .4s; }
+  .card:nth-child(2) { animation-delay: .5s; }
+  .card:nth-child(3) { animation-delay: .6s; }
+  .card:hover { border-color: rgba(224,33,43,.5); box-shadow: 0 18px 40px -22px rgba(224,33,43,.6); }
+  .card:active { transform: scale(0.985); }
+  .card-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .card-id { display: flex; align-items: center; gap: 10px; min-width: 0; }
+  .logo {
+    width: 34px; height: 34px; border-radius: 8px;
+    display: grid; place-items: center;
+    background: rgba(176,20,28,.18);
+    flex-shrink: 0;
+  }
+  .logo svg { width: 18px; height: 18px; fill: currentColor; }
+  .card-name { font-family: var(--font-head); font-weight: 600; font-size: 0.95rem; }
+  .card-sub { font-size: 0.75rem; color: var(--muted); }
+
+  .badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 0.7rem; font-weight: 600; letter-spacing: 0.06em;
+    padding: 4px 10px; border-radius: 999px;
+    border: 1px solid currentColor; white-space: nowrap;
+  }
+  .badge .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+  .badge.off { color: var(--blood-hot); }
+  .badge.off .dot { animation: pulse 1.6s ease-out infinite; }
+  .badge.on { color: var(--on); }
+  @keyframes pulse {
+    0%   { box-shadow: 0 0 0 0 rgba(224,33,43,.7); }
+    70%  { box-shadow: 0 0 0 7px rgba(224,33,43,0); }
+    100% { box-shadow: 0 0 0 0 rgba(224,33,43,0); }
+  }
+  .reason {
+    font-size: 0.8rem; color: var(--text);
+    background: linear-gradient(90deg, rgba(176,20,28,.2), transparent);
+    border-left: 2px solid var(--blood);
+    border-radius: 0 6px 6px 0;
+    padding: 8px 10px;
+    margin: 0;
+  }
+  .reason[hidden] { display: none; }
+
+  /* CTA */
+  .cta { margin-top: 36px; text-align: center; animation: fade .8s .7s both; }
+  .cta-line {
+    position: relative; display: inline-block;
+    font-family: var(--font-head);
+    font-weight: 600; font-size: 1.15rem;
+    color: var(--text); text-decoration: none;
+    padding: 6px 2px;
+    transition: transform .15s ease;
+  }
+  .cta-line .q { color: var(--blood-hot); }
+  .cta-line::after {
+    content: ""; position: absolute; left: 0; right: 0; bottom: 0;
+    height: 1px; background: var(--blood-hot);
+    transform: scaleX(0); transition: transform .4s cubic-bezier(.2,.7,.1,1);
+  }
+  .cta-line:hover::after { transform: scaleX(1); }
+  .cta-line:active { transform: scale(0.97); }
+  .cta-line:focus-visible { outline: 1px solid var(--blood-hot); outline-offset: 4px; }
+
+  .actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 18px; animation: fade .8s .8s both; }
+  .btn {
+    position: relative; overflow: hidden;
+    display: inline-flex; align-items: center; justify-content: center;
+    min-height: 40px; padding: 10px 18px; border-radius: 8px;
+    text-decoration: none; font-weight: 600; font-size: 0.8rem;
+    color: var(--text); background: var(--blood);
+    border: 1px solid var(--blood-hot);
+    transition: transform .12s ease, background .25s ease, box-shadow .25s ease, border-color .25s ease;
+    -webkit-tap-highlight-color: transparent;
+    cursor: pointer; font-family: var(--font-body);
+  }
+  .btn:hover { background: var(--blood-hot); box-shadow: 0 10px 26px -12px rgba(224,33,43,.9); }
+  .btn:active { transform: scale(0.95); }
+  .btn:focus-visible { outline: 1px solid var(--text); outline-offset: 3px; }
+  .btn:disabled { opacity: .5; cursor: default; }
+  .btn.ghost { background: transparent; border-color: var(--line); }
+  .btn.ghost:hover { background: rgba(176,20,28,.14); border-color: var(--blood); box-shadow: none; }
+
+  .ripple {
+    position: absolute; width: 18px; height: 18px; border-radius: 50%;
+    background: rgba(255,255,255,.3);
+    transform: translate(-50%,-50%) scale(0);
+    animation: ripple .6s ease-out forwards;
+    pointer-events: none;
+  }
+  @keyframes ripple { to { transform: translate(-50%,-50%) scale(16); opacity: 0; } }
+
+  footer {
+    margin-top: 48px; padding-top: 16px;
+    border-top: 1px solid var(--line);
+    font-size: 0.75rem; color: var(--muted);
+    display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;
+  }
+
+  /* Login */
+  .login {
+    position: fixed; inset: 0; z-index: 12;
+    display: grid; place-items: center; padding: 20px;
+    background: rgba(0,0,0,.6);
+    opacity: 0; pointer-events: none;
+    transition: opacity .25s ease;
+  }
+  .login.open { opacity: 1; pointer-events: auto; }
+  .login-card {
+    width: min(340px, 100%);
+    background: #0f0304;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 22px;
+    transform: translateY(8px);
+    transition: transform .3s cubic-bezier(.2,.7,.1,1);
+  }
+  .login.open .login-card { transform: none; }
+  .login h2 { font-family: var(--font-head); font-size: 1.05rem; font-weight: 600; margin: 0 0 16px; }
+  .login-err { color: var(--blood-hot); font-size: .75rem; min-height: 1em; margin: 0 0 10px; }
+
+  /* Admin drawer */
+  .scrim {
+    position: fixed; inset: 0; z-index: 10;
+    background: rgba(0,0,0,.6);
+    opacity: 0; pointer-events: none;
+    transition: opacity .3s ease;
+  }
+  .scrim.open { opacity: 1; pointer-events: auto; }
+  .drawer {
+    position: fixed; top: 0; right: 0; bottom: 0; z-index: 11;
+    width: min(400px, 94vw);
+    background: #0f0304;
+    border-left: 1px solid var(--line);
+    padding: calc(env(safe-area-inset-top, 0px) + 20px) 20px 28px;
+    overflow-y: auto;
+    transform: translateX(100%);
+    transition: transform .35s cubic-bezier(.2,.7,.1,1);
+  }
+  .drawer.open { transform: translateX(0); }
+  .drawer-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+  .drawer-title { font-family: var(--font-head); font-weight: 600; font-size: 1.05rem; margin: 0; }
+  .x-btn {
+    width: 34px; height: 34px; border-radius: 8px; cursor: pointer;
+    border: 1px solid var(--line); background: transparent; color: var(--text);
+    display: grid; place-items: center;
+  }
+  .x-btn:hover { border-color: var(--blood); }
+  .section-title { font-size: 0.7rem; color: var(--muted); letter-spacing: .08em; margin: 22px 0 10px; }
+  .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
+  .field label { font-size: 0.72rem; color: var(--muted); }
+  input[type="text"], input[type="url"], input[type="password"], select {
+    width: 100%;
+    background: #1a0708;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    color: var(--text);
+    padding: 9px 11px;
+    font: inherit; font-size: 0.85rem;
+  }
+  select { appearance: none; background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%), linear-gradient(135deg, var(--muted) 50%, transparent 50%); background-position: calc(100% - 16px) 52%, calc(100% - 11px) 52%; background-size: 5px 5px; background-repeat: no-repeat; padding-right: 30px; }
+  input:focus, select:focus { outline: none; border-color: var(--blood-hot); }
+
+  .proxy-row {
+    border: 1px solid var(--line); border-radius: 8px;
+    padding: 12px; margin-bottom: 10px;
+    background: rgba(30,5,7,.5);
+  }
+  .proxy-row-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .proxy-row-name { font-weight: 600; font-size: 0.8rem; color: var(--muted); }
+  .switch { position: relative; width: 44px; height: 24px; }
+  .switch input { opacity: 0; width: 0; height: 0; position: absolute; }
+  .switch span {
+    position: absolute; inset: 0; border-radius: 999px;
+    background: #2a0b0d; border: 1px solid var(--line);
+    cursor: pointer; transition: background .25s ease;
+  }
+  .switch span::after {
+    content: ""; position: absolute; top: 3px; left: 3px;
+    width: 16px; height: 16px; border-radius: 50%;
+    background: var(--muted); transition: transform .25s ease, background .25s ease;
+  }
+  .switch input:checked + span { background: rgba(142,240,180,.18); border-color: var(--on); }
+  .switch input:checked + span::after { transform: translateX(20px); background: var(--on); }
+  .switch input:focus-visible + span { outline: 1px solid var(--text); outline-offset: 2px; }
+
+  .link-row { display: grid; grid-template-columns: 1fr 1.6fr auto; gap: 6px; margin-bottom: 8px; }
+  .link-row input { min-width: 0; }
+  .mini-btn {
+    background: transparent; border: 1px solid var(--line); color: var(--muted);
+    border-radius: 6px; padding: 0 10px; cursor: pointer; font: inherit; font-size: 0.8rem;
+  }
+  .mini-btn:hover { border-color: var(--blood); color: var(--text); }
+  .mini-btn:active { transform: scale(0.95); }
+  .add-btn { width: 100%; padding: 9px; margin-top: 4px; }
+
+  .save-btn { width: 100%; margin-top: 20px; min-height: 44px; }
+  .save-state { font-size: 0.75rem; color: var(--muted); text-align: center; margin-top: 8px; min-height: 1em; }
+
+  @media (max-width: 720px) {
+    .drawer { width: 100vw; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body>
+<main class="wrap">
+
+  <header class="topbar">
+    <div>
+      <h1 class="wordmark">
+        <span class="line"><span id="wm-1">AFTERLIFE</span></span>
+        <span class="line"><span id="wm-2">PROXY</span></span>
+      </h1>
+      <p class="tagline" id="tagline"></p>
+    </div>
+    <button class="menu-btn" id="menu-btn" aria-label="Login admin" aria-controls="drawer" aria-expanded="false">
+      <svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8.5-7 10-4-1.5-7-5.5-7-10V6z" stroke-linejoin="round"/><circle cx="12" cy="11" r="1.6"/><path d="M12 12.6V15" stroke-linecap="round"/></svg>
+    </button>
+  </header>
+
+  <section class="grid" aria-label="Status proxy">
+    <article class="card">
+      <div class="card-head">
+        <div class="card-id">
+          <div class="logo" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M2 4.5l8.5-1.2v8.2H2zM11.5 3.2L22 1.8v9.9H11.5zM2 12.5h8.5v8.2L2 19.5zM11.5 12.5H22v9.7l-10.5-1.4z"/></svg>
+          </div>
+          <div><div class="card-name" data-name="pc"></div><div class="card-sub" data-sub="pc"></div></div>
+        </div>
+        <span class="badge off" data-status="pc"><span class="dot"></span><span data-label>OFF</span></span>
+      </div>
+      <p class="reason" data-reason="pc"></p>
+    </article>
+
+    <article class="card">
+      <div class="card-head">
+        <div class="card-id">
+          <div class="logo" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M6 9h12v8a1 1 0 0 1-1 1h-1v3a1.5 1.5 0 0 1-3 0v-3h-2v3a1.5 1.5 0 0 1-3 0v-3H7a1 1 0 0 1-1-1zM3.5 9a1.5 1.5 0 0 0-1.5 1.5v5a1.5 1.5 0 0 0 3 0v-5A1.5 1.5 0 0 0 3.5 9zm17 0a1.5 1.5 0 0 0-1.5 1.5v5a1.5 1.5 0 0 0 3 0v-5A1.5 1.5 0 0 0 20.5 9zM8.2 3.6l-1-1.8a.3.3 0 0 1 .5-.3l1 1.9a6.5 6.5 0 0 1 5.6 0l1-1.9a.3.3 0 0 1 .5.3l-1 1.8A5.7 5.7 0 0 1 18 7H6a5.7 5.7 0 0 1 2.2-3.4zM9.5 5.3a.6.6 0 1 0 0 1.2.6.6 0 0 0 0-1.2zm5 0a.6.6 0 1 0 0 1.2.6.6 0 0 0 0-1.2z"/></svg>
+          </div>
+          <div><div class="card-name" data-name="android"></div><div class="card-sub" data-sub="android"></div></div>
+        </div>
+        <span class="badge off" data-status="android"><span class="dot"></span><span data-label>OFF</span></span>
+      </div>
+      <p class="reason" data-reason="android"></p>
+    </article>
+
+    <article class="card">
+      <div class="card-head">
+        <div class="card-id">
+          <div class="logo" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M16.4 12.6c0-2.3 1.9-3.4 2-3.5-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.1-2.8.9-3.5.9s-1.8-.8-3-.8c-1.6 0-3 .9-3.8 2.3-1.6 2.8-.4 6.9 1.2 9.2.8 1.1 1.7 2.3 2.9 2.3 1.2 0 1.6-.7 3-.7s1.8.7 3 .7c1.3 0 2.1-1.1 2.8-2.2.9-1.3 1.3-2.6 1.3-2.7 0 0-2.5-1-2.5-3.8zM14.1 5.9c.6-.8 1.1-1.9 1-3-.9 0-2.1.6-2.7 1.4-.6.7-1.1 1.8-1 2.9 1 .1 2.1-.5 2.7-1.3z"/></svg>
+          </div>
+          <div><div class="card-name" data-name="ios"></div><div class="card-sub" data-sub="ios"></div></div>
+        </div>
+        <span class="badge off" data-status="ios"><span class="dot"></span><span data-label>OFF</span></span>
+      </div>
+      <p class="reason" data-reason="ios"></p>
+    </article>
+  </section>
+
+  <div class="cta">
+    <a class="cta-line" id="cta-main" href="#" target="_blank" rel="noopener noreferrer">
+      <span class="q" id="cta-q"></span> <span id="cta-text"></span>
+    </a>
+    <div class="actions" id="actions"></div>
+  </div>
+
+  <footer>
+    <span id="foot-1">© AFTERLIFE PROXY</span>
+    <span id="foot-2"></span>
+  </footer>
+</main>
+
+<!-- Login admin -->
+<div class="login" id="login" role="dialog" aria-modal="true" aria-labelledby="login-title" aria-hidden="true">
+  <div class="login-card">
+    <h2 id="login-title">Masuk admin</h2>
+    <div class="field"><label for="login-user">Username</label><input type="text" id="login-user" autocomplete="username"></div>
+    <div class="field"><label for="login-pass">Password</label><input type="password" id="login-pass" autocomplete="current-password"></div>
+    <p class="login-err" id="login-err" aria-live="polite"></p>
+    <button class="btn save-btn" id="login-btn" type="button">Masuk</button>
+  </div>
+</div>
+
+<!-- Panel admin -->
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" aria-label="Panel admin" aria-hidden="true">
+  <div class="drawer-head">
+    <h2 class="drawer-title">Panel Admin</h2>
+    <button class="x-btn" id="close-btn" aria-label="Tutup">
+      <svg width="14" height="14" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke-linecap="round"/></svg>
+    </button>
+  </div>
+  <div id="admin-body"></div>
+  <button class="btn save-btn" id="save-btn">Simpan perubahan</button>
+  <div class="save-state" id="save-state"></div>
+</aside>
+
+<script>
+  // Daftar font yang bisa dipilih di panel admin
+  const FONTS = [
+    { name: "Fraunces",           kind: "serif" },
+    { name: "Playfair Display",   kind: "serif" },
+    { name: "Cormorant Garamond", kind: "serif" },
+    { name: "Inter",              kind: "sans" },
+    { name: "Space Grotesk",      kind: "sans" },
+    { name: "IBM Plex Sans",      kind: "sans" },
+    { name: "Montserrat",         kind: "sans" },
+    { name: "Oswald",             kind: "sans" },
+    { name: "Bebas Neue",         kind: "sans" }
+  ];
+
+  // Nilai awal. Dipakai jika belum ada data tersimpan.
+  const DEFAULTS = {
+    site: {
+      line1: "AFTERLIFE",
+      line2: "PROXY",
+      tagline: "Proxy cepat dan stabil untuk kebutuhan harianmu.",
+      footer: "Dibuat untuk yang berani hidup kedua"
+    },
+    cta: { q: "Buy?", text: "Join discord kita sekarang" },
+    fonts: { head: "Fraunces", body: "Inter" },
+    proxies: {
+      pc:      { name: "Proxy PC",      sub: "Windows & macOS", on: false, reason: "Fix Bug Maintenance Now" },
+      android: { name: "Proxy Android", sub: "Android 9+",      on: false, reason: "Fix Bug Maintenance Now" },
+      ios:     { name: "Proxy iOS",     sub: "iPhone & iPad",   on: false, reason: "Fix Bug Maintenance Now" }
+    },
+    links: {
+      main:   "https://discord.gg/GANTI-INVITE",
+      admin:  "https://discord.com/users/GANTI-ID-ADMIN",
+      server: "https://discord.gg/GANTI-INVITE-SERVER"
+    },
+    extra: []
+  };
+
+  // Gabungkan data tersimpan ke nilai awal, tanpa menghapus field yang belum ada
+  function mergeDeep(base, over) {
+    if (!over || typeof over !== "object" || Array.isArray(over)) return over === undefined ? base : over;
+    const out = { ...base };
+    for (const k of Object.keys(over)) {
+      const b = base && base[k];
+      out[k] = (b && typeof b === "object" && !Array.isArray(b)) ? mergeDeep(b, over[k]) : over[k];
+    }
+    return out;
+  }
+
+  let config = structuredClone(DEFAULTS);
+  let db = null, docRef = null, canAdmin = false;
+  let draft = null;
+
+  function fontStack(name) {
+    const f = FONTS.find(x => x.name === name) || FONTS[0];
+    return `"${f.name}", ${f.kind === "serif" ? "Georgia, serif" : "system-ui, sans-serif"}`;
+  }
+
+  // ---------- Render halaman publik ----------
+  function renderPublic() {
+    const root = document.documentElement.style;
+    root.setProperty("--font-head", fontStack(config.fonts.head));
+    root.setProperty("--font-body", fontStack(config.fonts.body));
+
+    document.getElementById("wm-1").textContent = config.site.line1;
+    document.getElementById("wm-2").textContent = config.site.line2;
+    document.getElementById("tagline").textContent = config.site.tagline;
+    document.getElementById("foot-1").textContent = "© " + config.site.line1 + " " + config.site.line2;
+    document.getElementById("foot-2").textContent = config.site.footer;
+
+    for (const [key, p] of Object.entries(config.proxies)) {
+      document.querySelector(`[data-name="${key}"]`).textContent = p.name;
+      document.querySelector(`[data-sub="${key}"]`).textContent = p.sub;
+      const badge = document.querySelector(`[data-status="${key}"]`);
+      const reason = document.querySelector(`[data-reason="${key}"]`);
+      badge.querySelector("[data-label]").textContent = p.on ? "ON" : "OFF";
+      badge.className = "badge " + (p.on ? "on" : "off");
+      reason.textContent = p.reason;
+      reason.hidden = p.on;
+    }
+
+    document.getElementById("cta-q").textContent = config.cta.q;
+    document.getElementById("cta-text").textContent = config.cta.text;
+    document.getElementById("cta-main").href = config.links.main;
+
+    const actions = document.getElementById("actions");
+    actions.replaceChildren();
+    const items = [
+      { label: "Join Discord",   href: config.links.main,   cls: "btn" },
+      { label: "Hubungi Admin",  href: config.links.admin,  cls: "btn ghost" },
+      { label: "Server Discord", href: config.links.server, cls: "btn ghost" },
+      ...config.extra.filter(x => x.label && x.url).map(x => ({ label: x.label, href: x.url, cls: "btn ghost" }))
+    ];
+    for (const it of items) {
+      const a = document.createElement("a");
+      a.className = it.cls;
+      a.textContent = it.label;
+      a.href = it.href;
+      a.target = "_blank";
+      a.rel = "noopener noreferrer";
+      actions.appendChild(a);
+    }
+  }
+
+  // ---------- Panel admin ----------
+  function sectionEl(title) {
+    const wrap = document.createElement("div");
+    const t = document.createElement("div");
+    t.className = "section-title";
+    t.textContent = title;
+    wrap.appendChild(t);
+    document.getElementById("admin-body").appendChild(wrap);
+    return wrap;
+  }
+  function textField(parent, label, obj, key, type = "text") {
+    const f = document.createElement("div");
+    f.className = "field";
+    const l = document.createElement("label");
+    l.textContent = label;
+    const i = document.createElement("input");
+    i.type = type;
+    i.value = obj[key] ?? "";
+    i.addEventListener("input", () => { obj[key] = i.value; });
+    f.append(l, i);
+    parent.appendChild(f);
+  }
+  function selectField(parent, label, obj, key) {
+    const f = document.createElement("div");
+    f.className = "field";
+    const l = document.createElement("label");
+    l.textContent = label;
+    const s = document.createElement("select");
+    for (const font of FONTS) {
+      const o = document.createElement("option");
+      o.value = font.name;
+      o.textContent = font.name;
+      if (font.name === obj[key]) o.selected = true;
+      s.appendChild(o);
+    }
+    s.addEventListener("change", () => { obj[key] = s.value; });
+    f.append(l, s);
+    parent.appendChild(f);
+  }
+  function switchRow(parent, label, obj) {
+    const row = document.createElement("div");
+    row.className = "proxy-row-head";
+    const name = document.createElement("span");
+    name.className = "proxy-row-name";
+    name.textContent = label;
+    const sw = document.createElement("label");
+    sw.className = "switch";
+    const chk = document.createElement("input");
+    chk.type = "checkbox";
+    chk.checked = !!obj.on;
+    chk.setAttribute("aria-label", "Status " + label);
+    const knob = document.createElement("span");
+    chk.addEventListener("change", () => { obj.on = chk.checked; });
+    sw.append(chk, knob);
+    row.append(name, sw);
+    parent.appendChild(row);
+  }
+
+  function buildEditor() {
+    document.getElementById("admin-body").replaceChildren();
+    const d = draft;
+
+    let s = sectionEl("TEKS HALAMAN");
+    textField(s, "Judul baris 1", d.site, "line1");
+    textField(s, "Judul baris 2", d.site, "line2");
+    textField(s, "Tagline (teks di bawah judul)", d.site, "tagline");
+    textField(s, "Teks footer", d.site, "footer");
+
+    s = sectionEl("FONT");
+    selectField(s, "Font judul", d.fonts, "head");
+    selectField(s, "Font teks", d.fonts, "body");
+
+    s = sectionEl("KARTU PROXY");
+    for (const [key, p] of Object.entries(d.proxies)) {
+      const box = document.createElement("div");
+      box.className = "proxy-row";
+      switchRow(box, "Status " + key.toUpperCase(), p);
+      textField(box, "Judul kartu", p, "name");
+      textField(box, "Sub-judul (di bawah judul)", p, "sub");
+      textField(box, "Reason (muncul saat OFF)", p, "reason");
+      s.appendChild(box);
+    }
+
+    s = sectionEl("TOMBOL AJAKAN");
+    textField(s, "Kata awal (berwarna merah)", d.cta, "q");
+    textField(s, "Teks ajakan", d.cta, "text");
+
+    s = sectionEl("LINK DISCORD UTAMA");
+    textField(s, "Link Join Discord", d.links, "main", "url");
+    textField(s, "Link Admin (Discord)", d.links, "admin", "url");
+    textField(s, "Link Server Discord", d.links, "server", "url");
+
+    s = sectionEl("LINK DISCORD LAINNYA");
+    const list = document.createElement("div");
+    s.appendChild(list);
+    renderExtra(list);
+    const add = document.createElement("button");
+    add.className = "mini-btn add-btn";
+    add.textContent = "+ Tambah link";
+    add.addEventListener("click", () => { draft.extra.push({ label: "", url: "" }); renderExtra(list); });
+    s.appendChild(add);
+  }
+
+  function renderExtra(box) {
+    box.replaceChildren();
+    draft.extra.forEach((item, i) => {
+      const row = document.createElement("div");
+      row.className = "link-row";
+      const name = document.createElement("input");
+      name.type = "text"; name.placeholder = "Nama"; name.value = item.label;
+      name.addEventListener("input", () => { item.label = name.value; });
+      const url = document.createElement("input");
+      url.type = "url"; url.placeholder = "https://"; url.value = item.url;
+      url.addEventListener("input", () => { item.url = url.value; });
+      const del = document.createElement("button");
+      del.className = "mini-btn"; del.textContent = "Hapus";
+      del.addEventListener("click", () => { draft.extra.splice(i, 1); renderExtra(box); });
+      row.append(name, url, del);
+      box.appendChild(row);
+    });
+  }
+
+  function openDrawer() {
+    draft = structuredClone(config);
+    buildEditor();
+    document.getElementById("drawer").classList.add("open");
+    document.getElementById("drawer").setAttribute("aria-hidden", "false");
+    document.getElementById("scrim").classList.add("open");
+    document.getElementById("menu-btn").setAttribute("aria-expanded", "true");
+  }
+  function closeDrawer() {
+    document.getElementById("drawer").classList.remove("open");
+    document.getElementById("drawer").setAttribute("aria-hidden", "true");
+    document.getElementById("scrim").classList.remove("open");
+    document.getElementById("menu-btn").setAttribute("aria-expanded", "false");
+  }
+
+  async function saveDraft() {
+    const state = document.getElementById("save-state");
+    const btn = document.getElementById("save-btn");
+    btn.disabled = true;
+    state.textContent = "Menyimpan...";
+    config = structuredClone(draft);
+    renderPublic();
+    if (!docRef) {
+      state.textContent = "Tersimpan di halaman ini saja (database tidak tersedia).";
+      btn.disabled = false;
+      return;
+    }
+    try {
+      await docRef.set(structuredClone(config));
+      state.textContent = "Tersimpan. Pengunjung akan melihat perubahan ini.";
+    } catch (err) {
+      state.textContent = "Gagal menyimpan. Coba lagi.";
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  // ---------- Login admin ----------
+  const ADMIN_USER = "Gon";
+  const ADMIN_PASS_HASH = "c35a9967f6ea7d718687b79e23ee0090c5d54e9eaf309b2049e132b5e8190d1a";
+  let adminAuthed = false;
+
+  async function sha256Hex(text) {
+    const bytes = new TextEncoder().encode(text);
+    const hash = await crypto.subtle.digest("SHA-256", bytes);
+    return [...new Uint8Array(hash)].map(b => b.toString(16).padStart(2, "0")).join("");
+  }
+  function openLogin() {
+    if (adminAuthed) { openDrawer(); return; }
+    const l = document.getElementById("login");
+    l.classList.add("open");
+    l.setAttribute("aria-hidden", "false");
+    document.getElementById("login-err").textContent = "";
+    setTimeout(() => document.getElementById("login-user").focus(), 50);
+  }
+  function closeLogin() {
+    const l = document.getElementById("login");
+    l.classList.remove("open");
+    l.setAttribute("aria-hidden", "true");
+    document.getElementById("login-pass").value = "";
+  }
+  async function tryLogin() {
+    const user = document.getElementById("login-user").value.trim();
+    const pass = document.getElementById("login-pass").value;
+    const ok = user === ADMIN_USER && (await sha256Hex(pass)) === ADMIN_PASS_HASH;
+    if (ok) {
+      adminAuthed = true;
+      closeLogin();
+      openDrawer();
+    } else {
+      document.getElementById("login-err").textContent = "Username atau password salah.";
+      document.getElementById("login-pass").value = "";
+    }
+  }
+
+  // ---------- Ripple ----------
+  document.addEventListener("pointerdown", e => {
+    const el = e.target.closest(".btn, .cta-line, .menu-btn");
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    const s = document.createElement("span");
+    s.className = "ripple";
+    s.style.left = (e.clientX - r.left) + "px";
+    s.style.top = (e.clientY - r.top) + "px";
+    el.appendChild(s);
+    setTimeout(() => s.remove(), 650);
+  });
+
+  // ---------- Wiring ----------
+  document.getElementById("menu-btn").addEventListener("click", openLogin);
+  document.getElementById("login-btn").addEventListener("click", tryLogin);
+  document.getElementById("login-pass").addEventListener("keydown", e => { if (e.key === "Enter") tryLogin(); });
+  document.getElementById("login-user").addEventListener("keydown", e => { if (e.key === "Enter") document.getElementById("login-pass").focus(); });
+  document.getElementById("login").addEventListener("click", e => { if (e.target.id === "login") closeLogin(); });
+  document.getElementById("close-btn").addEventListener("click", closeDrawer);
+  document.getElementById("scrim").addEventListener("click", closeDrawer);
+  document.getElementById("save-btn").addEventListener("click", saveDraft);
+  document.addEventListener("keydown", e => {
+    if (e.key === "Escape") { closeLogin(); closeDrawer(); }
+  });
+
+  // ---------- Koneksi ke penyimpanan ----------
+  renderPublic();
+
+  (async () => {
+    try {
+      const ns = await window.claude?.use("db");
+      const user = await window.claude?.use("user");
+      if (!ns) return;
+      db = ns;
+      docRef = db.doc("site/config");
+      canAdmin = !!(await user?.canEdit?.());
+      document.getElementById("menu-btn").classList.toggle("show", canAdmin);
+
+      docRef.onSnapshot(snap => {
+        if (snap.exists && snap.data()) {
+          config = mergeDeep(structuredClone(DEFAULTS), snap.data());
+          renderPublic();
+        }
+      });
+    } catch (e) {
+      // Tanpa database, halaman tetap tampil dengan nilai awal.
+    }
+  })();
+</script>
+</body>
+</html>
